@@ -1,7 +1,7 @@
 import datetime, hashlib, uuid, time
 from homeassistant.components.http import HomeAssistantView
 
-from .const import DOMAIN, API_URL, API_NAME
+from ..const import DOMAIN, API_URL, API_NAME
 from ..utils.storage import YAMLStorage
 
 CONFIG_FILE = "bookmark.yaml"
