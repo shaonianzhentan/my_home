@@ -1,0 +1,64 @@
+{
+    "config": {
+        "step": {
+            "init": {
+                "title": "我的家",
+                "description": "我自己经常用的一些插件服务",
+                "data": {}
+            }
+        },
+        "error": {},
+        "abort": {
+            "single_instance_allowed": "仅允许单个配置"
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "title": "服务配置",
+                "description": "提供多种服务，请自行启用",
+                "data": {
+                    "item": "服务项"
+                }
+            },
+            "website": {
+                "title": "网站导航",
+                "description": "记录每一个喜欢的网站",
+                "data": {
+                    "switch": "功能开关"
+                }
+            },
+            "password": {
+                "title": "密码管理",
+                "description": "加密记录我的账号密码",
+                "data": {
+                    "switch": "功能开关"
+                }
+            },
+            "wecom": {
+                "title": "企业微信",
+                "description": "微信收消息，微信控制 Home Assistant",
+                "data": {
+                    "switch": "功能开关"
+                }
+            },
+            "wechat": {
+                "title": "微信小程序",
+                "description": "微信小程序控制Home Assistant",
+                "data": {
+                    "switch": "功能开关"
+                }
+            },
+            "qqmail": {
+                "title": "QQ邮箱",
+                "description": "QQ邮箱消息通知",
+                "data": {
+                    "switch": "功能开关"
+                }
+            }
+        },
+        "error": {
+            "500": "出现异常，请联系插件作者"
+        }
+    }
+}
