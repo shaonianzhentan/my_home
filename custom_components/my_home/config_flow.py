@@ -16,7 +16,7 @@ class MyHomeConfigFlow(ConfigFlow, domain=DOMAIN):
 
     VERSION = 1
 
-    async def async_step_init(self, user_input: dict[str, Any] | None = None, errors={}) -> FlowResult:
+    async def async_step_user(self, user_input: dict[str, Any] | None = None, errors={}) -> FlowResult:
 
         if self._async_current_entries():
             return self.async_abort(reason="single_instance_allowed")
@@ -25,7 +25,7 @@ class MyHomeConfigFlow(ConfigFlow, domain=DOMAIN):
             return self.async_create_entry(title=DOMAIN, data={})
 
         DATA_SCHEMA = vol.Schema({})
-        return self.async_show_form(step_id="init", data_schema=DATA_SCHEMA, errors=errors)
+        return self.async_show_form(step_id="user", data_schema=DATA_SCHEMA, errors=errors)
 
     @staticmethod
     @callback
@@ -37,7 +37,7 @@ class OptionsFlowHandler(OptionsFlow):
     def __init__(self, config_entry: ConfigEntry):
         self.config_entry = config_entry
 
-    async def async_update_entry(self, data):
+    def async_update_entry(self, data):
         return self.async_create_entry(title='', data={ **self.config_entry.options, **data })
 
     async def async_step_init(self, user_input=None, errors={}):
@@ -51,14 +51,14 @@ class OptionsFlowHandler(OptionsFlow):
                 return await self.async_step_password()
 
         return self.async_show_form(step_id="init", data_schema=vol.Schema({
-            vol.Required(CONF_TYPE): vol.In([
-                ("website", "网站导航"),
-                ("password", "密码管理"), 
-                ("wecom", "企业微信"), 
-                ("wechat", "微信小程序"), 
-                ("qqmail", "QQ邮箱")
-            ]),
-        }), errors=errors)
+                vol.Required(CONF_TYPE): vol.In({
+                    "website": "网站导航",
+                    "password": "密码管理",
+                    "wecom": "企业微信",
+                    "wechat": "微信小程序",
+                    "qqmail": "QQ邮箱"
+                }),
+            }), errors=errors)
 
     async def async_step_website(self, user_input=None, errors={}):
 
@@ -68,7 +68,7 @@ class OptionsFlowHandler(OptionsFlow):
             })
     
         return self.async_show_form(step_id="website", data_schema=vol.Schema({
-            vol.Required(CONF_SWITCH): bool,
+            vol.Required(CONF_SWITCH, default=self.config_entry.options.get(SWITCH_WEBSITE, False)): bool,
         }), errors=errors)
 
     async def async_step_password(self, user_input=None, errors={}):

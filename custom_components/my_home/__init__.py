@@ -15,7 +15,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # 注册静态资源
     await Page.async_register_www(Page.WWW_PATH, f"custom_components/{DOMAIN}/www")
 
-    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+    #await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     return True
 
 
@@ -24,4 +24,5 @@ async def update_listener(hass, entry):
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+    #return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+    return True

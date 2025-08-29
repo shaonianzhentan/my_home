@@ -1,7 +1,7 @@
 {
     "config": {
         "step": {
-            "init": {
+            "user": {
                 "title": "我的家",
                 "description": "我自己经常用的一些插件服务",
                 "data": {}
