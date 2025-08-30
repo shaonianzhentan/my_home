@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>网址导航</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    // 简化Tailwind配置
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            border: "hsl(var(--border))",
+            input: "hsl(var(--input))",
+            ring: "hsl(var(--ring))",
+            background: "hsl(var(--background))",
+            foreground: "hsl(var(--foreground))",
+            primary: {
+              DEFAULT: "hsl(var(--primary))",
+              foreground: "hsl(var(--primary-foreground))",
+            },
+            secondary: {
+              DEFAULT: "hsl(var(--secondary))",
+              foreground: "hsl(var(--secondary-foreground))",
+            },
+            destructive: {
+              DEFAULT: "hsl(var(--destructive))",
+              foreground: "hsl(var(--destructive-foreground))",
+            },
+            muted: {
+              DEFAULT: "hsl(var(--muted))",
+              foreground: "hsl(var(--muted-foreground))",
+            },
+            accent: {
+              DEFAULT: "hsl(var(--accent))",
+              foreground: "hsl(var(--accent-foreground))",
+            },
+            popover: {
+              DEFAULT: "hsl(var(--popover))",
+              foreground: "hsl(var(--popover-foreground))",
+            },
+            card: {
+              DEFAULT: "hsl(var(--card))",
+              foreground: "hsl(var(--card-foreground))",
+            },
+          },
+          borderRadius: {
+            lg: "var(--radius)",
+            md: "calc(var(--radius) - 2px)",
+            sm: "calc(var(--radius) - 4px)",
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    :root {
+      --background: 0 0% 100%;
+      --foreground: 240 10% 3.9%;
+      --card: 0 0% 100%;
+      --card-foreground: 240 10% 3.9%;
+      --popover: 0 0% 100%;
+      --popover-foreground: 240 10% 3.9%;
+      --primary: 240 5.9% 10%;
+      --primary-foreground: 0 0% 98%;
+      --secondary: 240 4.8% 95.9%;
+      --secondary-foreground: 240 5.9% 10%;
+      --muted: 240 4.8% 95.9%;
+      --muted-foreground: 240 3.8% 46.1%;
+      --accent: 240 4.8% 95.9%;
+      --accent-foreground: 240 5.9% 10%;
+      --destructive: 0 84.2% 60.2%;
+      --destructive-foreground: 0 0% 98%;
+      --border: 240 5.9% 90%;
+      --input: 240 5.9% 90%;
+      --ring: 240 5.9% 10%;
+      --radius: 0.5rem;
+    }
+
+    .dark {
+      --background: 240 10% 3.9%;
+      --foreground: 0 0% 98%;
+      --card: 240 10% 3.9%;
+      --card-foreground: 0 0% 98%;
+      --popover: 240 10% 3.9%;
+      --popover-foreground: 0 0% 98%;
+      --primary: 0 0% 98%;
+      --primary-foreground: 240 5.9% 10%;
+      --secondary: 240 3.7% 15.9%;
+      --secondary-foreground: 0 0% 98%;
+      --muted: 240 3.7% 15.9%;
+      --muted-foreground: 240 5% 64.9%;
+      --accent: 240 3.7% 15.9%;
+      --accent-foreground: 0 0% 98%;
+      --destructive: 0 62.8% 30.6%;
+      --destructive-foreground: 0 0% 98%;
+      --border: 240 3.7% 15.9%;
+      --input: 240 3.7% 15.9%;
+      --ring: 240 4.9% 83.9%;
+    }
+  </style>
+</head>
+
+<body class="min-h-screen bg-background font-sans antialiased">
+  <script>
+    // 简化主题初始化
+    (function () {
+      try {
+        var d = document.documentElement;
+        var e = localStorage.getItem("theme");
+        if ("system" === e || (!e && true)) {
+          var m = window.matchMedia("(prefers-color-scheme: dark)");
+          if (m.matches) {
+            d.classList.add("dark");
+            d.style.colorScheme = "dark";
+          } else {
+            d.classList.add("light");
+            d.style.colorScheme = "light";
+          }
+        } else if (e) {
+          d.classList.add(e);
+          d.style.colorScheme = e;
+        }
+      } catch (e) { }
+    })();
+  </script>
+  <div class="container relative mx-auto min-h-screen w-full px-0">
+    <div class="flex">
+      <div id="mobile-sidebar"
+        class="fixed z-40 h-screen w-[16rem] bg-background transition-transform duration-300 ease-in-out sm:translate-x-0 -translate-x-full">
+        <nav
+          class="after:h-[calc(100vh-65px)] block min-h-screen w-full sm:w-60 flex-row flex-nowrap bg-background font-semibold sm:bg-background px-4 sm:px-6 sm:pb-6 pt-16 sm:pt-0">
+          <div class="mx-6 hidden sm:block">
+            <h2 class="h-14 leading-[4rem] text-lg font-semibold tracking-tight">
+              网址导航
+            </h2>
+          </div>
+          <div
+            class="flex-start relative z-40 flex h-auto w-full flex-1 flex-col overflow-y-auto overflow-x-hidden rounded pt-4 opacity-100">
+            <div class="flex list-none flex-col md:min-w-full md:flex-col">
+              <div class="flex-none pb-12">
+                <div class="space-y-4 pb-4">
+                  <div class="py-2">
+                    <div id="sidebar" class="space-y-1"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </nav>
+      </div>
+      <div class="w-full sm:pl-[16rem]">
+        <header
+          class="sticky top-0 z-40 w-full bg-background dark:border-slate-50/[0.06] lg:border-b lg:border-slate-900/10">
+          <div class="container m-0 flex h-16 items-center space-x-4 sm:justify-between sm:space-x-0">
+            <div class="flex items-center sm:hidden">
+              <button id="menu-toggle"
+                class="inline-flex items-center justify-center text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background hover:bg-accent hover:text-accent-foreground h-10 w-10 rounded-full">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5">
+                  <line x1="4" y1="12" x2="20" y2="12"></line>
+                  <line x1="4" y1="6" x2="20" y2="6"></line>
+                  <line x1="4" y1="18" x2="20" y2="18"></line>
+                </svg>
+                <span class="sr-only">Toggle Menu</span>
+              </button>
+            </div>
+            <nav class="flex flex-1 items-center justify-end space-x-4">
+              <div class="flex w-full items-center space-x-1 sm:w-auto">
+                <button id="btnSearch"
+                  class="inline-flex items-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background border border-input hover:bg-accent hover:text-accent-foreground py-2 px-4 relative h-8 w-full justify-start rounded-[0.5rem] bg-muted/50 text-sm font-normal text-muted-foreground shadow-none sm:pr-12 md:w-40 lg:w-56 xl:w-64">
+                  搜索网站...
+                </button>
+
+                <button id="theme-toggle"
+                  class="inline-flex items-center justify-center text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background hover:bg-accent hover:text-accent-foreground h-10 w-10 rounded-full">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="h-4 w-4">
+                    <path d="M12 3a6.364 6.364 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+                  </svg>
+                </button>
+                <button id="btnSettings"
+                  class="inline-flex items-center justify-center text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background hover:text-accent-foreground h-10 w-10 rounded-full hover:bg-accent"
+                  type="button">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="h-5 w-5">
+                    <path
+                      d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z">
+                    </path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                </button>
+              </div>
+            </nav>
+          </div>
+        </header>
+        <div class="w-full pb-10 pt-4">
+          <div id="main" class="mx-auto w-full px-4 md:px-6"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function getConfig() {
+      const homeassistant = parent.document.querySelector('home-assistant')
+      let fetchApi = homeassistant ? homeassistant.hass.fetchWithAuth : fetch
+      const res = await fetchApi('/api/my_home/website').then(res => res.json())
+
+      return res.map(ele => {
+        const url = new URL(ele.url)
+        return {
+          host: url.host,
+          hostname: url.hostname,
+          origin: url.origin,
+          icon: `https://0x3.com/icon?host=${url.hostname}`,
+          url: ele.url,
+          name: ele.name,
+          type: ele.category,
+          desc: ele.desc || "",
+        }
+      })
+    }
+
+    (async () => {
+      const configs = await getConfig();
+      const types = [...new Set(configs.map((ele) => ele.type))];
+
+      window.sites = {
+        list: configs,
+        types,
+        getList: (type) => configs.filter((ele) => ele.type === type),
+      };
+
+      // 侧边栏
+      document.getElementById("sidebar").innerHTML = types
+        .map((title, index) => {
+          return `<div class="relative block cursor-pointer rounded-lg transition-colors ease-in-out hover:bg-accent">
+                      <div
+                        class="sidebar-item relative z-10 mb-2 flex items-center gap-2 rounded-r-lg p-2 transition-colors ease-in-out before:transition-colors hover:no-underline sm:border-l-0 sm:pl-6 sm:before:absolute sm:before:left-[-5px] sm:before:top-[2px] sm:before:h-[calc(100%-4px)] sm:before:w-[10px] sm:before:rounded-full sm:before:transition-colors"
+                        data-target="type-${index}">
+                        <span class="truncate text-sm">${title}</span>
+                      </div>
+                    </div>`;
+        })
+        .join("");
+
+      // 主内容区
+      document.getElementById("main").innerHTML = types
+        .map((type, index) => {
+          return `<div id="type-${index}" class="section mb-12">
+            <div class="my-4">
+              <h1 class="mb-2 text-2xl font-bold text-primary/80 sm:text-3xl">${type}</h1>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+              ${getSites(type).join("")}
+            </div>
+          </div>`;
+        })
+        .join("");
+
+      // 分类网址
+      function getSites(type) {
+        return configs
+          .filter((ele) => ele.type === type)
+          .map((ele) => {
+            return `<div style="opacity: 1; transform: none">
+                <a class="group relative block h-full w-full p-2" target="_blank" href="${ele.url}">
+                  <div class="relative z-20 h-full w-full overflow-hidden rounded-lg border bg-background p-2 shadow-md">
+                    <div class="relative z-50">
+                      <div class="p-4">
+                        <h4 class="mt-2 flex items-center gap-3 font-bold tracking-wide">
+                          <img alt="" loading="lazy" width="40" height="40" decoding="async"
+                            class="overflow-hidden rounded-full object-fill"
+                            style="color: transparent" src="${ele.icon}" />
+                          ${ele.name}
+                        </h4>
+                        <p class="mt-4 text-sm leading-relaxed tracking-wide">${ele.desc}</p>
+                      </div>
+                    </div>
+                  </div>
+                </a>
+              </div>`;
+          });
+      }
+
+      // 侧边栏点击事件
+      document.querySelectorAll("[data-target]").forEach((item) => {
+        item.addEventListener("click", function (e) {
+          e.preventDefault();
+          const targetId = this.getAttribute("data-target");
+          const targetElement = document.getElementById(targetId);
+
+          if (targetElement) {
+            const headerOffset = 70;
+            const elementPosition = targetElement.offsetTop;
+            const offsetPosition = elementPosition - headerOffset;
+
+            window.scrollTo({
+              top: offsetPosition,
+              behavior: "smooth",
+            });
+
+            updateActiveState(targetId);
+          }
+        });
+      });
+
+      // 更新激活状态
+      function updateActiveState(activeId) {
+        document.querySelectorAll("[data-target]").forEach((item) => {
+          item.classList.remove("bg-accent");
+        });
+
+        const activeItem = document.querySelector(
+          `[data-target="${activeId}"]`
+        );
+        if (activeItem) {
+          activeItem.classList.add("bg-accent");
+        }
+      }
+
+      // 滚动跟踪
+      let ticking = false;
+      function onScroll() {
+        if (!ticking) {
+          requestAnimationFrame(updateOnScroll);
+          ticking = true;
+        }
+      }
+
+      function updateOnScroll() {
+        let activeSection = null;
+        const scrollPosition = window.scrollY + 100;
+
+        document.querySelectorAll(".section").forEach((section) => {
+          const sectionTop = section.offsetTop;
+          const sectionHeight = section.offsetHeight;
+
+          if (
+            scrollPosition >= sectionTop &&
+            scrollPosition < sectionTop + sectionHeight
+          ) {
+            activeSection = section.getAttribute("id");
+          }
+        });
+
+        if (activeSection) {
+          updateActiveState(activeSection);
+        }
+
+        ticking = false;
+      }
+
+      window.addEventListener("scroll", onScroll);
+      updateOnScroll();
+    })();
+  </script>
+
+  <script>
+    // 移动端侧边栏切换
+    document.addEventListener("DOMContentLoaded", function () {
+      const toggleButton = document.getElementById("menu-toggle");
+      const sidebar = document.getElementById("mobile-sidebar");
+
+      const overlay = document.createElement("div");
+      overlay.id = "sidebar-overlay";
+      overlay.classList.add(
+        "fixed",
+        "inset-0",
+        "z-30",
+        "bg-black",
+        "bg-opacity-50",
+        "hidden",
+        "sm:hidden"
+      );
+      document.body.appendChild(overlay);
+
+      if (toggleButton && sidebar) {
+        function toggleSidebar() {
+          sidebar.classList.toggle("-translate-x-full");
+          sidebar.classList.toggle("sm:translate-x-0");
+          overlay.classList.toggle("hidden");
+        }
+
+        function closeSidebar() {
+          sidebar.classList.add("-translate-x-full");
+          sidebar.classList.remove("sm:translate-x-0");
+          overlay.classList.add("hidden");
+        }
+
+        toggleButton.addEventListener("click", toggleSidebar);
+        overlay.addEventListener("click", closeSidebar);
+
+        document.querySelectorAll("[data-target]").forEach((item) => {
+          item.addEventListener("click", function () {
+            if (window.innerWidth < 640) {
+              closeSidebar();
+            }
+          });
+        });
+      }
+    });
+  </script>
+
+  <script>
+    // 主题切换
+    document.addEventListener("DOMContentLoaded", function () {
+      const themeToggle = document.getElementById("theme-toggle");
+
+      if (themeToggle) {
+        updateThemeIcon();
+
+        themeToggle.addEventListener("click", function () {
+          const htmlElement = document.documentElement;
+          const currentTheme = htmlElement.classList.contains("dark")
+            ? "dark"
+            : "light";
+
+          if (currentTheme === "dark") {
+            htmlElement.classList.remove("dark");
+            htmlElement.classList.add("light");
+            htmlElement.style.colorScheme = "light";
+            localStorage.setItem("theme", "light");
+          } else {
+            htmlElement.classList.remove("light");
+            htmlElement.classList.add("dark");
+            htmlElement.style.colorScheme = "dark";
+            localStorage.setItem("theme", "dark");
+          }
+
+          updateThemeIcon();
+        });
+      }
+
+      function updateThemeIcon() {
+        const htmlElement = document.documentElement;
+        const isDark = htmlElement.classList.contains("dark");
+        const themeToggle = document.getElementById("theme-toggle");
+
+        if (!themeToggle) return;
+        themeToggle.innerHTML = "";
+
+        if (isDark) {
+          themeToggle.innerHTML = `
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4">
+                <circle cx="12" cy="12" r="5"></circle>
+                <line x1="12" y1="1" x2="12" y2="3"></line>
+                <line x1="12" y1="21" x2="12" y2="23"></line>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                <line x1="1" y1="12" x2="3" y2="12"></line>
+                <line x1="21" y1="12" x2="23" y2="12"></line>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+              </svg>`;
+        } else {
+          themeToggle.innerHTML = `
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+              </svg>`;
+        }
+      }
+    });
+  </script>
+
+  <!-- 内容搜索 -->
+  <dialog id="dialog-search"
+    class="rounded-lg shadow-lg w-full max-w-lg p-0 backdrop:bg-black/50 backdrop:backdrop-blur-sm">
+    <div class="flex h-full w-full flex-col overflow-hidden rounded-md bg-popover text-popover-foreground">
+      <div class="flex items-center justify-between border-b px-3 py-2">
+        <div class="flex items-center flex-1">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+            class="mr-2 h-4 w-4 shrink-0 opacity-50">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input
+            class="flex h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
+            placeholder="请输入关键词搜索..." type="text" id="search-input" />
+        </div>
+        <button id="close-dialog"
+          class="ml-2 p-1 rounded-sm opacity-70 hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="max-h-[300px] overflow-y-auto overflow-x-hidden p-2">
+        <div id="search-list"></div>
+      </div>
+    </div>
+  </dialog>
+  <script>
+    // 文本搜索
+    function searchLink(text) {
+      const { types, list: configs } = window.sites || {};
+      const searchList = [];
+      types.forEach((type) => {
+        const list = configs.filter((ele) => {
+          if (ele.type === type) {
+            if (!text) return true;
+            const keyworld = text.toLocaleLowerCase();
+            return (
+              ele.name.toLocaleLowerCase().includes(keyworld) ||
+              ele.url.toLocaleLowerCase().includes(keyworld)
+            );
+          }
+          return false;
+        });
+        if (list.length) {
+          searchList.push({ title: type, list });
+        }
+      });
+
+      document.getElementById("search-list").innerHTML = searchList.length
+        ? searchList
+          .map((item) => {
+            return `<div class="overflow-hidden p-1 text-foreground">
+                    <div class="px-2 py-1.5 text-xs font-medium text-muted-foreground">${item.title
+              }</div>
+                    <div>
+                      ${item.list
+                .map((ele) => {
+                  return `<div class="relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none data-[disabled=true]:pointer-events-none data-[selected='true']:bg-accent data-[selected=true]:text-accent-foreground data-[disabled=true]:opacity-50">
+                            <div class="mr-2 flex h-4 w-4 items-center justify-center">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-3 w-3">
+                                <circle cx="12" cy="12" r="10"></circle>
+                              </svg>
+                            </div>
+                            ${ele.name}
+                          </div>`;
+                })
+                .join("")}
+                    </div>
+                  </div>`;
+          })
+          .join("")
+        : `<div class="py-6 text-center text-sm">没找到结果</div>`;
+    }
+
+    const searchInput = document.getElementById("search-input");
+    document.getElementById("btnSearch").addEventListener("click", () => {
+      document.getElementById("dialog-search").showModal();
+      searchInput.value = "";
+      searchInput.focus();
+      searchLink();
+    });
+
+    document.getElementById("close-dialog").addEventListener("click", () => {
+      document.getElementById("dialog-search").close();
+    });
+
+    document
+      .getElementById("dialog-search")
+      .addEventListener("click", function (e) {
+        if (e.target === this) this.close();
+      });
+
+    document
+      .getElementById("dialog-search")
+      .addEventListener("keydown", function (e) {
+        if (e.key === "Escape") this.close();
+      });
+
+    searchInput.addEventListener("input", () => {
+      searchLink(searchInput.value.trim());
+    });
+  </script>
+
+  <!-- 内容编辑 -->
+  <dialog id="dialog-edit"
+    class="rounded-lg shadow-lg w-full max-w-2xl p-0 backdrop:bg-black/50 backdrop:backdrop-blur-sm">
+    <div class="flex h-full w-full flex-col overflow-hidden rounded-md bg-card text-card-foreground">
+      <div class="flex items-center justify-between border-b px-4 py-3">
+        <h3 class="text-lg font-semibold">编辑网站数据</h3>
+        <button id="close-edit-dialog" class="p-1 rounded-sm opacity-70 hover:opacity-100">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="p-4 border-b">
+        <p class="text-sm text-muted-foreground">
+          在这里修改网站导航的数据。点击保存按钮后，所有更改将立即生效。
+        </p>
+      </div>
+
+      <div class="flex-grow overflow-y-auto p-4">
+        <div class="mb-4 flex gap-2">
+          <input type="text" id="new-site-name" class="flex-grow border rounded p-2 text-sm" placeholder="网站名称" />
+          <input type="text" id="new-site-url" class="flex-grow border rounded p-2 text-sm" placeholder="网站URL" />
+          <input type="text" id="new-site-type" class="flex-grow border rounded p-2 text-sm" placeholder="分类" />
+          <button id="add-site-btn"
+            class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-3">
+            添加
+          </button>
+        </div>
+
+        <div class="border rounded-lg">
+          <div class="grid grid-cols-12 gap-2 p-3 bg-muted/50 text-sm font-medium border-b">
+            <div class="col-span-3">名称</div>
+            <div class="col-span-4">URL</div>
+            <div class="col-span-3">分类</div>
+            <div class="col-span-2 text-right">操作</div>
+          </div>
+          <div id="sites-list" class="divide-y max-h-[400px] overflow-y-auto">
+            <!-- 网站列表将通过JavaScript动态生成 -->
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-between border-t p-4 gap-2">
+        <button id="reset-data"
+          class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors bg-destructive text-destructive-foreground hover:bg-destructive/90 h-9 px-4 py-2">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 h-4 w-4">
+            <path d="M3 2v6h6"></path>
+            <path d="M3 13a9 9 0 1 0 3-7.7L3 8"></path>
+          </svg>
+          重置数据
+        </button>
+
+        <div class="flex gap-2 ml-auto">
+          <button id="cancel-edit"
+            class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2">
+            取消
+          </button>
+          <button id="save-changes"
+            class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-4 py-2">
+            保存更改
+          </button>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <script>
+    // 编辑功能相关脚本
+    document.getElementById("btnSettings").addEventListener("click", () => {
+      document.getElementById("dialog-edit").showModal();
+      loadEditData();
+    });
+
+    document
+      .getElementById("close-edit-dialog")
+      .addEventListener("click", () => {
+        document.getElementById("dialog-edit").close();
+      });
+
+    document.getElementById("cancel-edit").addEventListener("click", () => {
+      document.getElementById("dialog-edit").close();
+    });
+
+    document
+      .getElementById("dialog-edit")
+      .addEventListener("click", function (e) {
+        if (e.target === this) {
+          this.close();
+        }
+      });
+
+    document
+      .getElementById("dialog-edit")
+      .addEventListener("keydown", function (e) {
+        if (e.key === "Escape") {
+          this.close();
+        }
+      });
+
+    // 添加网站按钮
+    document.getElementById("add-site-btn").addEventListener("click", () => {
+      const name = document.getElementById("new-site-name").value.trim();
+      const url = document.getElementById("new-site-url").value.trim();
+      const type = document.getElementById("new-site-type").value.trim();
+
+      if (name && url && type) {
+        addSiteToList({ name, url, type, icon: "https://processon.com/favicon.ico" });
+        // 清空输入框
+        document.getElementById("new-site-name").value = "";
+        document.getElementById("new-site-url").value = "";
+        document.getElementById("new-site-type").value = "";
+      } else {
+        alert("请填写完整信息");
+      }
+    });
+
+    // 重置数据按钮
+    document.getElementById("reset-data").addEventListener("click", () => {
+      if (confirm("确定要重置所有数据吗？此操作不可撤销。")) {
+        localStorage.removeItem("websiteData");
+        alert("数据已重置");
+        document.getElementById("dialog-edit").close();
+        location.reload();
+      }
+    });
+
+    // 保存更改按钮
+    document.getElementById("save-changes").addEventListener("click", () => {
+      saveChanges();
+    });
+
+    // 加载编辑数据
+    function loadEditData() {
+      const sitesList = document.getElementById("sites-list");
+      sitesList.innerHTML = ""; // 清空现有内容
+
+      // 获取当前配置数据
+      const { list: sites } = window.sites || { list: [] };
+
+      // 为每个网站创建编辑行
+      sites.forEach((site, index) => {
+        addSiteToList(site, index);
+      });
+    }
+
+    // 添加网站到列表
+    function addSiteToList(site, index = null) {
+      const sitesList = document.getElementById("sites-list");
+      const rowIndex = index !== null ? index : sitesList.children.length;
+
+      const siteRow = document.createElement("div");
+      siteRow.className = "grid grid-cols-12 gap-2 p-3 items-center";
+      siteRow.dataset.index = rowIndex;
+      siteRow.innerHTML = `
+      <div class="col-span-3">
+        <input type="text" 
+               class="w-full border rounded p-1 text-sm site-name" 
+               value="${site.name}">
+      </div>
+      <div class="col-span-4">
+        <input type="text" 
+               class="w-full border rounded p-1 text-sm site-url" 
+               value="${site.url}">
+      </div>
+      <div class="col-span-3">
+        <input type="text" 
+               class="w-full border rounded p-1 text-sm site-type" 
+               value="${site.type}">
+      </div>
+      <div class="col-span-2 text-right">
+        <button class="remove-site text-destructive p-1">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" 
+               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+    `;
+
+      sitesList.appendChild(siteRow);
+
+      // 绑定删除事件
+      siteRow.querySelector(".remove-site").addEventListener("click", function () {
+        if (confirm("确定要删除这个网站吗？")) {
+          siteRow.remove();
+        }
+      });
+    }
+
+    // 保存更改
+    function saveChanges() {
+      const sites = [];
+      const siteRows = document.querySelectorAll("#sites-list > div");
+
+      siteRows.forEach(row => {
+        const name = row.querySelector(".site-name").value.trim();
+        const url = row.querySelector(".site-url").value.trim();
+        const type = row.querySelector(".site-type").value.trim();
+
+        if (name && url && type) {
+          sites.push({
+            name,
+            url,
+            type,
+            icon: "https://processon.com/favicon.ico"
+          });
+        }
+      });
+
+      // 保存数据到localStorage
+      localStorage.setItem("websiteData", JSON.stringify(sites));
+      alert("数据已保存");
+      document.getElementById("dialog-edit").close();
+
+      // 重新加载页面以显示更改
+      location.reload();
+    }
+  </script>
+
+</body>
+
+</html>
