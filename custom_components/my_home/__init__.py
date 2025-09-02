@@ -2,7 +2,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.const import Platform
 from homeassistant.helpers import discovery
-
+import asyncio
 from .utils.page import Page
 from .const import DOMAIN, SWITCH_WEBSITE, PATH_WEBSITE
 from .manifest import manifest
@@ -30,6 +30,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 async def update_listener(hass, entry):
     await async_unload_entry(hass, entry)
+    await asyncio.sleep(1)
     await async_setup_entry(hass, entry)
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:

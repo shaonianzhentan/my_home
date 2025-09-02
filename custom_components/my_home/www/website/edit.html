@@ -28,6 +28,19 @@
                     placeholder="请输入或选择分类">
                 <datalist id="category-list"></datalist>
             </div>
+            <div>
+                <span class="block mb-1 text-gray-700">仅管理员可见</span>
+                <div class="flex items-center gap-6">
+                    <label class="inline-flex items-center">
+                        <input type="radio" name="admin" id="admin-false" value="false" class="form-radio" checked>
+                        <span class="ml-2">否</span>
+                    </label>
+                    <label class="inline-flex items-center">
+                        <input type="radio" name="admin" id="admin-true" value="true" class="form-radio">
+                        <span class="ml-2">是</span>
+                    </label>
+                </div>
+            </div>
             <div class="flex gap-4">
                 <button type="submit" id="submit-btn"
                     class="bg-blue-600 text-white rounded px-4 py-2 hover:bg-blue-700 flex-1">保存</button>
@@ -60,6 +73,7 @@
         const cancelBtn = document.getElementById('cancel-btn');
         const list = document.getElementById('bookmark-list');
         const emptyTip = document.getElementById('empty-tip');
+        const adminRadios = document.getElementsByName('admin');
 
         let bookmarks = [];
 
@@ -92,6 +106,9 @@
           <div>
             <a href="${b.url}" target="_blank" class="text-blue-600 font-medium hover:underline">${b.name}</a>
             <span class="text-gray-500 text-sm ml-2">${b.category || ''}</span>
+            <span class="text-xs ml-2 px-2 py-1 rounded ${b.admin ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-200 text-gray-500'}">
+                ${b.admin ? '仅管理员' : '所有人'}
+            </span>
           </div>
           <div class="flex gap-2">
             <button class="edit-btn text-green-600 hover:underline" data-idx="${idx}">编辑</button>
@@ -102,36 +119,39 @@
             });
         }
 
-        // 新增/编辑提交
+        // 获取admin字段值
+        function getAdminValue() {
+            for (const radio of adminRadios) {
+                if (radio.checked) {
+                    return radio.value === "true";
+                }
+            }
+            return false;
+        }
+
+        // 设置admin字段值
+        function setAdminValue(val) {
+            for (const radio of adminRadios) {
+                radio.checked = (radio.value === (val ? "true" : "false"));
+            }
+        }
+
+        // 新增/编辑提交（POST，url相同自动更新）
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             const name = nameInput.value.trim();
             const url = urlInput.value.trim();
             const category = categoryInput.value.trim();
-            const editIndex = editIndexInput.value;
-
+            const admin = getAdminValue();
+            // editIndex 仅用于UI，不影响接口
             if (!name || !url) return;
 
-            if (editIndex === '') {
-                // 新增
-                await fetchApi(API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, url, category })
-                });
-            } else {
-                // 修改
-                await fetchApi(API_URL, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ url, key: 'name', value: name })
-                });
-                await fetchApi(API_URL, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ url, key: 'category', value: category })
-                });
-            }
+            await fetchApi(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, url, category, admin })
+            });
+
             resetForm();
             fetchBookmarks();
         });
@@ -144,6 +164,7 @@
                 nameInput.value = b.name;
                 urlInput.value = b.url;
                 categoryInput.value = b.category || '';
+                setAdminValue(!!b.admin);
                 urlInput.readOnly = true;
                 editIndexInput.value = idx;
                 submitBtn.textContent = '保存修改';
@@ -174,11 +195,10 @@
             urlInput.readOnly = false;
             submitBtn.textContent = '保存';
             cancelBtn.classList.add('hidden');
+            setAdminValue(false);
         }
 
         // 初始化
         fetchBookmarks();
     </script>
 </body>
-
-</html>
