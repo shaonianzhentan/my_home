@@ -10,3 +10,6 @@ SWITCH_WECHAT = 'website_wechat'
 
 SWITCH_QQMAIL = 'website_qqmail'
 
+
+PATH_WEBSITE = f'{DOMAIN}_website'
+API_WEBSITE = f'/api/{DOMAIN}/website'
